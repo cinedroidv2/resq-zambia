@@ -116,3 +116,23 @@ ResQ Zambia is an academic software project and prototype exploring AI-assisted 
 Developed as a Bachelor of Computer Science final-year project at ZCAS University 2026.
 
 Project: ResQ Zambia — AI-Powered Emergency Triage and Dispatch System by Francine Mwamba Chileshe
+
+## Project Screenshots
+
+### 1. Web Interface
+
+The web interface provides the entry point for submitting and accessing emergency services.
+
+![ResQ Web Interface](docs/images/website/Screenshot%202026-06-17%20135353.png)
+
+### 2. Emergency Dispatch Dashboard
+
+The dashboard supports incident review, triage, and dispatch coordination.
+
+![ResQ Dispatch Dashboard](docs/images/dashboard/Screenshot%202026-06-17%20140858.png)
+
+### 3. USSD Interface
+
+The USSD channel explores emergency reporting for users accessing the system through feature phones.
+
+![ResQ USSD Interface](docs/images/ussd/Screenshot%202026-06-17%20142019.png)
