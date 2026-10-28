@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html class="dark">
+<head>
+    <title>ResQ Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#050505] text-gray-200 flex items-center justify-center h-screen">
+    <div class="w-full max-w-md p-8 bg-[#0a0a0c] border border-gray-800 rounded-xl shadow-2xl">
+        <h2 class="text-2xl font-bold mb-6 text-center">ResQ Control Access</h2>
+        {% if error %}
+            <div class="mb-4 p-3 bg-red-900/30 border border-red-500/40 text-red-300 rounded text-sm">{{ error }}</div>
+        {% endif %}
+        <form method="POST" class="space-y-4">
+            <input type="text" name="username" placeholder="Username" required class="w-full px-4 py-3 bg-[#111114] border border-gray-700 rounded focus:outline-none focus:border-blue-500">
+            <input type="password" name="password" placeholder="Password" required class="w-full px-4 py-3 bg-[#111114] border border-gray-700 rounded focus:outline-none focus:border-blue-500">
+            <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded font-medium transition">Login</button>
+        </form>
+        <p class="mt-4 text-xs text-gray-500 text-center">Default: admin / admin123</p>
+    </div>
+</body>
+</html>

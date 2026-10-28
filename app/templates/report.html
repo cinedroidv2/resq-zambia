@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResQ Zambia - Emergency Reporting Portal</title>
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --surface-color: rgba(24, 24, 27, 0.72);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --action-color: #dc2626;
+            --action-hover: #b91c1c;
+            --action-disabled: #450a0a;
+            --success-color: #16a34a;
+            --warning-color: #eab308;
+            --focus-ring: rgba(220, 38, 38, 0.4);
+            --panel-shadow: rgba(0, 0, 0, 0.5);
+            --transition-speed: 0.25s;
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f9f9fb;
+            --surface-color: rgba(255, 255, 255, 0.85);
+            --border-color: rgba(9, 9, 11, 0.1);
+            --text-primary: #09090b;
+            --text-secondary: #4b5563;
+            --text-muted: #9ca3af;
+            --action-color: #e11d48;
+            --action-hover: #be123c;
+            --action-disabled: #fda4af;
+            --success-color: #15803d;
+            --warning-color: #ca8a04;
+            --focus-ring: rgba(225, 29, 72, 0.3);
+            --panel-shadow: rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Satoshi', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+            transition: background-color var(--transition-speed) ease;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at 70% 30%, rgba(30, 58, 138, 0.15), transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        [data-theme="light"] body::before {
+            background: radial-gradient(circle at 70% 30%, rgba(219, 234, 254, 0.3), transparent 60%);
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Satoshi', sans-serif;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            letter-spacing: -0.01em;
+        }
+
+        /* Header */
+        .app-header {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            position: relative;
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .brand-logo {
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--action-color);
+        }
+
+        .brand-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .brand-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success-color);
+            box-shadow: 0 0 8px rgba(22, 163, 74, 0.6);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .controls-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .control-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            font-family: inherit;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .control-btn:hover {
+            background-color: rgba(255, 255, 255, 0.04);
+            border-color: var(--text-secondary);
+        }
+
+        [data-theme="light"] .control-btn:hover {
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+
+        /* Main Layout */
+        .main-container {
+            flex: 1;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            z-index: 5;
+            position: relative;
+        }
+
+        .content-layout {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 4rem;
+            align-items: start;
+        }
+
+        .intro-section {
+            padding-top: 2rem;
+            text-align: left;
+        }
+
+        .intro-title {
+            font-size: 2.75rem;
+            line-height: 1.15;
+            margin-bottom: 1.25rem;
+            color: var(--text-primary);
+        }
+
+        .intro-desc {
+            font-size: 1.125rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .intro-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .intro-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .step-num {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--action-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            padding-top: 0.2rem;
+        }
+
+        .step-text strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Glass Panel */
+        .glass-panel {
+            background: var(--surface-color);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 40px var(--panel-shadow);
+            position: relative;
+            transition: transform var(--transition-speed) ease;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+
+        .panel-title {
+            font-size: 1.25rem;
+            color: var(--text-primary);
+        }
+
+        .panel-channel {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.3rem 0.7rem;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        [data-theme="light"] .panel-channel {
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        /* Language Modal */
+        .lang-modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(11, 12, 16, 0.95);
+            z-index: 100;
+            border-radius: 11px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        [data-theme="light"] .lang-modal-overlay {
+            background-color: rgba(249, 249, 251, 0.98);
+        }
+
+        .lang-modal-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .lang-modal-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .lang-modal-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .lang-options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+            max-width: 280px;
+        }
+
+        .lang-choice-btn {
+            width: 100%;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            font-family: inherit;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .lang-choice-btn:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: var(--text-secondary);
+        }
+
+        [data-theme="light"] .lang-choice-btn:hover {
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.75rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            text-align: left;
+            display: flex;
+            align-items: center;
+        }
+
+        .required-indicator {
+            color: var(--action-color);
+            margin-left: 0.25rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            color: var(--text-muted);
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .form-input {
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.75rem 1rem 0.75rem 2.7rem;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        [data-theme="light"] .form-input {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--action-color);
+            box-shadow: 0 0 0 3px var(--focus-ring);
+        }
+
+        .form-input:focus ~ .input-icon,
+        .form-textarea:focus ~ .input-icon {
+            color: var(--action-color);
+        }
+
+        .form-input::placeholder,
+        .form-textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-textarea {
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
+            min-height: 120px;
+            resize: vertical;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        [data-theme="light"] .form-textarea {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--action-color);
+            box-shadow: 0 0 0 3px var(--focus-ring);
+        }
+
+        .textarea-meta {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 0.35rem;
+        }
+
+        .counter-text {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Location geo button and coord display */
+        .location-action-row {
+            margin-top: 0.5rem;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .geo-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .geo-btn:hover {
+            background-color: rgba(255, 255, 255, 0.04);
+            border-color: var(--text-secondary);
+        }
+
+        [data-theme="light"] .geo-btn:hover {
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+
+        .geo-btn .spinner {
+            width: 1rem;
+            height: 1rem;
+            border-width: 2px;
+            border-color: rgba(255,255,255,0.3);
+            border-top-color: var(--text-primary);
+        }
+
+        [data-theme="light"] .geo-btn .spinner {
+            border-color: rgba(0,0,0,0.2);
+            border-top-color: var(--text-primary);
+        }
+
+        .coord-display-panel {
+            margin-top: 0.75rem;
+            padding: 0.75rem 1rem;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        [data-theme="light"] .coord-display-panel {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .coord-values {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .coord-accuracy {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .location-hint-inline {
+            font-size: 0.8rem;
+            color: var(--warning-color);
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.4rem;
+        }
+
+        .location-hint-inline i {
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* Checkbox & Terms */
+        .checkbox-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .custom-checkbox {
+            margin-top: 0.2rem;
+            width: 1.1rem;
+            height: 1.1rem;
+            accent-color: var(--action-color);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .checkbox-label {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: var(--text-secondary);
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .accordion-wrapper {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .accordion-trigger {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0;
+            transition: color 0.2s;
+        }
+
+        .accordion-trigger:hover {
+            color: var(--text-secondary);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.25s ease-out;
+        }
+
+        .accordion-content.open {
+            max-height: 300px;
+        }
+
+        .accordion-text {
+            padding: 0.5rem 0;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: var(--text-muted);
+            text-align: left;
+        }
+
+        /* Safety Warning */
+        .safety-warning-box {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-left: 3px solid var(--warning-color);
+            background-color: rgba(234, 179, 8, 0.05);
+            margin-bottom: 1.75rem;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .warning-box-icon {
+            color: var(--warning-color);
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+
+        .warning-box-text {
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: var(--text-secondary);
+            text-align: left;
+        }
+
+        /* Validation Errors */
+        .field-error-msg {
+            color: var(--action-color);
+            font-size: 0.8rem;
+            margin-top: 0.4rem;
+            text-align: left;
+            display: none;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .field-error-msg.show {
+            display: flex;
+        }
+
+        /* Toast */
+        .toast-notification {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: #1c1d22;
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--action-color);
+            padding: 1rem 1.5rem;
+            border-radius: 6px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        [data-theme="light"] .toast-notification {
+            background-color: #ffffff;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .toast-notification.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .toast-text {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            background-color: var(--action-color);
+            border: none;
+            color: #ffffff;
+            padding: 1rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--action-hover);
+        }
+
+        .submit-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px var(--focus-ring);
+        }
+
+        .submit-btn:active {
+            transform: scale(0.99);
+        }
+
+        .submit-btn:disabled {
+            background-color: var(--action-disabled);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .spinner {
+            display: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #ffffff;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Success State */
+        .success-panel {
+            display: none;
+            text-align: center;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem 0;
+        }
+
+        .success-panel.show {
+            display: flex;
+        }
+
+        .success-badge {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 50%;
+            background-color: rgba(22, 163, 74, 0.1);
+            color: var(--success-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .success-title {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .success-desc {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 360px;
+        }
+
+        .success-checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            text-align: left;
+            width: 100%;
+            max-width: 360px;
+        }
+
+        .success-check-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--success-color);
+        }
+
+        .reference-box {
+            padding: 0.75rem 1.5rem;
+            background-color: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 2.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        [data-theme="light"] .reference-box {
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+
+        .reference-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .reference-value {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--success-color);
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .success-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            width: 100%;
+            max-width: 360px;
+        }
+
+        .success-meta-item {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.6rem 0.8rem;
+            text-align: left;
+        }
+
+        [data-theme="light"] .success-meta-item {
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        .meta-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.2rem;
+        }
+
+        .meta-value {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .severity-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .severity-badge.critical { background: rgba(220, 38, 38, 0.1); color: var(--action-color); }
+        .severity-badge.high { background: rgba(234, 179, 8, 0.1); color: var(--warning-color); }
+
+        .reset-btn {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .reset-btn:hover {
+            background-color: rgba(255, 255, 255, 0.04);
+            border-color: var(--text-secondary);
+        }
+
+        [data-theme="light"] .reset-btn:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        /* Footer */
+        .app-footer {
+            width: 100%;
+            padding: 2rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            margin-top: auto;
+            z-index: 10;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .encrypted-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        /* Form container (hidden on success) */
+        .form-container {
+            transition: opacity 0.2s;
+        }
+
+        .form-container.hidden {
+            display: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .content-layout {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+            }
+            .intro-section {
+                padding-top: 0;
+                text-align: center;
+            }
+            .intro-title {
+                font-size: 2.25rem;
+            }
+            .intro-steps {
+                display: none;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .app-header {
+                padding: 1rem;
+            }
+            .main-container {
+                padding: 1rem;
+            }
+            .glass-panel {
+                padding: 1.5rem;
+            }
+            .intro-title {
+                font-size: 1.75rem;
+            }
+            .brand-name {
+                font-size: 1rem;
+            }
+            .control-btn span.btn-label {
+                display: none;
+            }
+            .success-meta {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="app-header">
+        <div class="brand-container">
+            <div class="brand-logo">
+                <i data-lucide="shield-check" style="width:2rem;height:2rem;"></i>
+            </div>
+            <span class="brand-name">ResQ</span>
+            <div class="brand-status" title="System Active"></div>
+        </div>
+        <div class="controls-container">
+            <button type="button" class="control-btn" id="themeToggle" onclick="toggleTheme()">
+                <i data-lucide="sun" style="width:1rem;height:1rem;" id="themeIconSun"></i>
+                <i data-lucide="moon" style="width:1rem;height:1rem;display:none;" id="themeIconMoon"></i>
+                <span class="btn-label" data-i18n="themeToggle">Light Mode</span>
+            </button>
+            <button type="button" class="control-btn" onclick="showLangModal()">
+                <i data-lucide="globe" style="width:1rem;height:1rem;"></i>
+                <span class="btn-label" data-i18n="langBtn">Language</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="main-container">
+        <div class="content-layout">
+            <!-- Left: Intro -->
+            <section class="intro-section">
+                <h1 class="intro-title" data-i18n="introTitle">Report an Emergency</h1>
+                <p class="intro-desc" data-i18n="introDesc">Get help to your location fast. Fill in the form and your report goes straight to emergency responders in your area.</p>
+                <div class="intro-steps">
+                    <div class="intro-step">
+                        <div class="step-num">1</div>
+                        <div class="step-text"><strong data-i18n="step1Title">Pick your language</strong> <span data-i18n="step1Desc">then the form adjusts to match.</span></div>
+                    </div>
+                    <div class="intro-step">
+                        <div class="step-num">2</div>
+                        <div class="step-text"><strong data-i18n="step2Title">Enter your phone and location</strong> <span data-i18n="step2Desc">we try to detect it automatically.</span></div>
+                    </div>
+                    <div class="intro-step">
+                        <div class="step-num">3</div>
+                        <div class="step-text"><strong data-i18n="step3Title">Describe what is happening</strong> <span data-i18n="step3Desc">then hit submit. Help is on the way.</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right: Form Panel -->
+            <div class="glass-panel" id="formPanel">
+                <!-- Language Selection Overlay -->
+                <div class="lang-modal-overlay" id="langModal">
+                    <h2 class="lang-modal-title" data-i18n="langModalTitle">Choose Language</h2>
+                    <p class="lang-modal-desc" data-i18n="langModalDesc">Select how you would like to use the form.</p>
+                    <div class="lang-options-grid">
+                        <button type="button" class="lang-choice-btn" onclick="selectLang('en')">English</button>
+                        <button type="button" class="lang-choice-btn" onclick="selectLang('ny')">Chichewa</button>
+                    </div>
+                </div>
+
+                <div class="panel-header">
+                    <h2 class="panel-title" data-i18n="panelTitle">Emergency Report</h2>
+                    <span class="panel-channel">WEB</span>
+                </div>
+
+                <!-- Form -->
+                <div class="form-container" id="formContainer">
+                    <form id="reportForm" novalidate>
+                        <!-- Safety Warning -->
+                        <div class="safety-warning-box">
+                            <div class="warning-box-icon">
+                                <i data-lucide="alert-triangle" style="width:1.1rem;height:1.1rem;"></i>
+                            </div>
+                            <div class="warning-box-text" data-i18n="safetyWarning">If you are in immediate danger, call your local emergency services first. This form is an additional way to reach responders.</div>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="form-group">
+                            <label class="form-label" for="phone">
+                                <span data-i18n="phoneLabel">Phone Number</span>
+                                <span class="required-indicator">*</span>
+                            </label>
+                            <div class="input-wrapper">
+                                <input type="tel" id="phone" name="phone_number" class="form-input" placeholder="+260 977 123 456" required autocomplete="tel">
+                                <div class="input-icon">
+                                    <i data-lucide="phone" style="width:1.1rem;height:1.1rem;"></i>
+                                </div>
+                            </div>
+                            <div class="field-error-msg" id="phoneError">
+                                <i data-lucide="alert-circle" style="width:0.85rem;height:0.85rem;"></i>
+                                <span data-i18n="phoneError">Enter a valid phone number</span>
+                            </div>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="form-group">
+                            <label class="form-label" for="location">
+                                <span data-i18n="locationLabel">Location</span>
+                                <span class="required-indicator">*</span>
+                            </label>
+                            <div class="input-wrapper">
+                                <input type="text" id="location" name="location" class="form-input" placeholder="Detecting your location..." required>
+                                <div class="input-icon">
+                                    <i data-lucide="map-pin" style="width:1.1rem;height:1.1rem;"></i>
+                                </div>
+                            </div>
+                            <div class="location-action-row">
+                                <button type="button" class="geo-btn" id="geoBtn" onclick="retryGeo()">
+                                    <i data-lucide="locate" style="width:0.9rem;height:0.9rem;" id="geoBtnIcon"></i>
+                                    <span data-i18n="geoBtn" id="geoBtnText">Detect My Location</span>
+                                </button>
+                            </div>
+                            <div class="coord-display-panel" id="coordPanel">
+                                <span class="coord-values" id="coordValues"></span>
+                                <span class="coord-accuracy" id="coordAccuracy"></span>
+                            </div>
+                            <div class="location-hint-inline" id="locationHint" style="display:none;">
+                                <i data-lucide="info" style="width:0.85rem;height:0.85rem;"></i>
+                                <span data-i18n="locHint">Could not detect automatically. Please type your street, landmark, or area.</span>
+                            </div>
+                            <div class="field-error-msg" id="locationError">
+                                <i data-lucide="alert-circle" style="width:0.85rem;height:0.85rem;"></i>
+                                <span data-i18n="locationError">Please provide your location</span>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="form-group">
+                            <label class="form-label" for="description">
+                                <span data-i18n="descLabel">Describe the Emergency</span>
+                                <span class="required-indicator">*</span>
+                            </label>
+                            <div class="input-wrapper" style="position:relative;">
+                                <textarea id="description" name="raw_text" class="form-textarea" placeholder="What is happening? Be specific about the type of emergency, number of people involved, immediate dangers..." required oninput="updateCounter()"></textarea>
+                            </div>
+                            <div class="textarea-meta">
+                                <span class="counter-text" id="charCounter">0 / 500</span>
+                            </div>
+                            <div class="field-error-msg" id="descError">
+                                <i data-lucide="alert-circle" style="width:0.85rem;height:0.85rem;"></i>
+                                <span data-i18n="descError">Describe what is happening</span>
+                            </div>
+                        </div>
+
+                       
+<!-- Terms -->
+<label class="checkbox-container" for="termsCheckbox">
+    <input
+        type="checkbox"
+        id="termsCheckbox"
+        class="custom-checkbox"
+        required
+    >
+
+    <span
+        class="checkbox-label"
+        data-i18n="termsCheckbox"
+    >
+        I agree to the terms and conditions below
+    </span>
+</label>
+
+
+
+                        <!-- Submit -->
+                        <button type="submit" class="submit-btn" id="submitBtn" disabled>
+                            <div class="spinner" id="submitSpinner"></div>
+                            <i data-lucide="send" style="width:1.1rem;height:1.1rem;" id="submitIcon"></i>
+                            <span id="submitText" data-i18n="submitBtn">Submit Emergency Report</span>
+                        </button>
+                    </form>
+                </div>
+
+<!-- Success Panel -->
+<div class="success-panel" id="successPanel">
+    <div class="success-badge">
+        <i
+            data-lucide="check"
+            style="width:2rem;height:2rem;stroke-width:3;"
+        ></i>
+    </div>
+
+    <h2
+        class="success-title"
+        data-i18n="successTitle"
+    >
+        Report Received
+    </h2>
+
+    <p
+        class="success-desc"
+        data-i18n="successMsg"
+    >
+        Your report has been received and placed in the emergency
+        review queue. Keep your phone nearby in case a dispatcher
+        needs more information.
+    </p>
+
+    <div class="success-checklist">
+        <div class="success-check-item">
+            <i
+                data-lucide="check-circle"
+                style="width:1rem;height:1rem;"
+            ></i>
+
+            <span data-i18n="check1">
+                Your report was submitted successfully
+            </span>
+        </div>
+
+        <div class="success-check-item">
+            <i
+                data-lucide="check-circle"
+                style="width:1rem;height:1rem;"
+            ></i>
+
+            <span data-i18n="check2">
+                A dispatcher will review the information
+            </span>
+        </div>
+
+        <div class="success-check-item">
+            <i
+                data-lucide="check-circle"
+                style="width:1rem;height:1rem;"
+            ></i>
+
+            <span data-i18n="check3">
+                Keep your phone available for contact
+            </span>
+        </div>
+    </div>
+
+    <div class="reference-box">
+        <span
+            class="reference-label"
+            data-i18n="refLabel"
+        >
+            Reference ID
+        </span>
+
+        <span
+            class="reference-value mono"
+            id="refIdDisplay"
+        >
+            RESQ-0000
+        </span>
+    </div>
+
+    <button
+        type="button"
+        class="reset-btn"
+        onclick="resetForm()"
+        data-i18n="newReportBtn"
+    >
+        Submit Another Report
+    </button>
+</div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <span class="encrypted-badge">
+            <i data-lucide="lock" style="width:0.85rem;height:0.85rem;"></i>
+            <span data-i18n="encrypted">Encrypted</span>
+        </span>
+        <span data-i18n="footerText">Multichannel emergency reporting</span>
+    </footer>
+
+    <!-- Toast -->
+    <div class="toast-notification" id="toastNotification">
+        <i data-lucide="alert-circle" style="width:1.1rem;height:1.1rem;color:var(--action-color);flex-shrink:0;"></i>
+        <span class="toast-text" id="toastText"></span>
+    </div>
+
+    <script>
+        // Translations
+        const translations = {
+            en: {
+                introTitle: 'Report an Emergency',
+                introDesc: 'Get help to your location fast. Fill in the form and your report goes straight to emergency responders in your area.',
+                step1Title: 'Pick your language',
+                step1Desc: 'then the form adjusts to match.',
+                step2Title: 'Enter your phone and location',
+                step2Desc: 'we try to detect it automatically.',
+                step3Title: 'Describe what is happening',
+                step3Desc: 'then hit submit. Help is on the way.',
+                themeToggle: 'Light Mode',
+                langBtn: 'Language',
+                langModalTitle: 'Choose Language',
+                langModalDesc: 'Select how you would like to use the form.',
+                panelTitle: 'Emergency Report',
+                safetyWarning: 'Please make sure all the information you provide is accurate. This form is an additional way to reach emergency responders and does not replace calling official emergency services directly.',
+                phoneLabel: 'Phone Number',
+                phoneError: 'Enter a valid phone number',
+                locationLabel: 'Location',
+                geoBtn: 'Detect My Location',
+                geoBtnDetecting: 'Detecting...',
+                locHint: 'Could not detect automatically. Please type your street, landmark, or area.',
+                locationError: 'Please provide your location',
+                descLabel: 'Describe the Emergency',
+                descError: 'Describe what is happening',
+                termsCheckbox: 'I agree to the terms and conditions below',
+                accordionTrigger: 'Read terms',
+                termsText: '<strong>Disclaimer:</strong> This application is provided as-is for emergency reporting purposes. The developer(s) and operator(s) of this system are not liable for any delays, inaccuracies, or failures in emergency response. By submitting a report, you acknowledge that this is a supplementary communication tool and does not replace calling official emergency services directly. All reports are transmitted to the relevant authorities for review and action. False reports may result in legal consequences. Your data is encrypted and handled in accordance with applicable privacy laws.',
+                submitBtn: 'Submit Emergency Report',
+                submitting: 'Submitting...',
+                footerText: 'Multichannel emergency reporting',
+                encrypted: 'Encrypted',
+                successTitle: 'Report Submitted',
+                successMsg: 'Help is on the way. Emergency services have been notified and responders are being dispatched.',
+                check1: 'Your report has been sent to the dashboard',
+                check2: 'Emergency responders are being dispatched',
+                check3: 'Stay safe and follow their instructions',
+                refLabel: 'Reference ID',
+                categoryLabel: 'Category',
+                severityLabel: 'Severity',
+                locationDisplayLabel: 'Location',
+                newReportBtn: 'Submit Another Report',
+                networkError: 'Network error. Check your connection and try again.',
+                phonePlaceholder: '+260 977 123 456',
+                locationPlaceholder: 'Detecting your location...',
+                locationManualPlaceholder: 'Enter location (street, landmark, area)',
+                descPlaceholder: 'What is happening? Be specific about the type of emergency, number of people involved, immediate dangers...',
+                coordAccuracy: 'accuracy'
+            },
+            ny: {
+                introTitle: 'Fotokozani Za Mwamsanga',
+                introDesc: 'Pezani thandizo ku malo anu m\'mwamsanga. Lazani fomu ndi lipoti lanu lidzatsatira kwa oyang\'ana mwamsanga.',
+                step1Title: 'Sankhani chiyankhulo',
+                step1Desc: 'kenako fomu idzasintha.',
+                step2Title: 'Lembani foni ndi malo anu',
+                step2Desc: 'timayesetsa kupeza mwachidziwitso.',
+                step3Title: 'Fotokozani zimene zikuchitika',
+                step3Desc: 'kenako patsani tumiza. Thandizo likubwera.',
+                themeToggle: 'Mwala Woyera',
+                langBtn: 'Chiyankhulo',
+                langModalTitle: 'Sankhani Chiyankhulo',
+                langModalDesc: 'Sankhani mwayi mukufuna kugwiritsa ntchito fomu.',
+                panelTitle: 'Lipoti la Mwamsanga',
+                safetyWarning: 'Mukhala mu opa kwambiri, imbizani mautumiki a mwamsanga pa foni yanu moyenera. Fomu iyi ndi njira yowonjezera yofikira oyang\'ana mwamsanga.',
+                phoneLabel: 'Nambala ya Foni',
+                phoneError: 'Lembani nambala ya foni yamkwanu',
+                locationLabel: 'Malo',
+                geoBtn: 'Peza Malo Anga',
+                geoBtnDetecting: 'Kupeza...',
+                locHint: 'Sakwanira kupeza mwachidziwitso. Chonde lembani msewu, malo odziwika, kapena dera.',
+                locationError: 'Chonde pezani malo anu',
+                descLabel: 'Fotokozani Za Mwamsanga',
+                descError: 'Fotokozani zimene zikuchitika',
+                termsCheckbox: 'Ndavomereza malamulo ndi miyambo ili m\'munsiyi',
+                accordionTrigger: 'Sani malamulo',
+                termsText: '<strong>Chidziwitso:</strong> Pulogalamu iyi imaperekedwa monga momwe ilili chifukwa cha kufotokoza zochitika mwamsanga. Wopanga ndi woyendetsa dongosolo ili sali ndi mlandu pa kuchedwa, zolakwika, kapena kulephera kuyankha mwamsanga. Potumiza lipoti, mumavomereza kuti iyi ndi njira yowonjezera yolumikizirana ndipo siyim\'malo m\'kuyimba mautumiki a mwamsanga mwachindunji. Malipoti onse amatumizidwa kwa akuluakulu kuti awawone ndi kuchitapo kanthu. Malipoti onyenga angabweretse zotsatira zamalamulo. Deta yanu yachinsinsi ndipo imasamalidwa malinga ndi malamulo oyenera.',
+                submitBtn: 'Tumizani Lipoti la Mwamsanga',
+                submitting: 'Kutumiza...',
+                footerText: 'Kufotokoza mwamsanga kudzera m\'njira zosiyanasiyana',
+                encrypted: 'Yachinsinsi',
+                successTitle: 'Lipoti Latumizidwa',
+                successMsg: 'Thandizo likubwera. Mautumiki a mwamsanga adziwitsidwa ndi oyang\'ana akutumizidwa.',
+                check1: 'Lipoti lanu latumizidwa ku dashboard',
+                check2: 'Oyankha mwamsanga akutumizidwa',
+                check3: 'Khala otetezeka ndi kutsatira malangizo awo',
+                refLabel: 'Nambala Ya Lipoti',
+                categoryLabel: 'Gulu',
+                severityLabel: 'Kukula',
+                locationDisplayLabel: 'Malo',
+                newReportBtn: 'Tumizani Lipoti Lina',
+                networkError: 'Vuto la netiweki. Yang\'anani kulumikizi ndikuyesanso.',
+                phonePlaceholder: '+260 977 123 456',
+                locationPlaceholder: 'Kupeza malo anu...',
+                locationManualPlaceholder: 'Lembani malo (msewu, malo odziwika, dera)',
+                descPlaceholder: 'Chinachake chikuchitika? Khalani owoneka, mtundu wa mwamsanga, chiwerengero cha anthu, zoopsa...',
+                coordAccuracy: 'kulondola'
+            }
+        };
+
+        let currentLang = 'en';
+
+        // DOM refs
+        const phoneInput = document.getElementById('phone');
+        const locationInput = document.getElementById('location');
+        const descriptionInput = document.getElementById('description');
+        const submitBtn = document.getElementById('submitBtn');
+        const submitText = document.getElementById('submitText');
+        const submitIcon = document.getElementById('submitIcon');
+        const submitSpinner = document.getElementById('submitSpinner');
+        const form = document.getElementById('reportForm');
+        const termsCheckbox = document.getElementById('termsCheckbox');
+        const langModal = document.getElementById('langModal');
+        const coordPanel = document.getElementById('coordPanel');
+        const coordValues = document.getElementById('coordValues');
+        const coordAccuracy = document.getElementById('coordAccuracy');
+        const geoBtn = document.getElementById('geoBtn');
+        const geoBtnText = document.getElementById('geoBtnText');
+        const geoBtnIcon = document.getElementById('geoBtnIcon');
+        const locationHint = document.getElementById('locationHint');
+        const toastNotification = document.getElementById('toastNotification');
+        const toastTextEl = document.getElementById('toastText');
+        const formContainer = document.getElementById('formContainer');
+        const successPanel = document.getElementById('successPanel');
+        const charCounter = document.getElementById('charCounter');
+
+        // State
+        let geoLat = null, geoLng = null, geoFailed = false, geoDetecting = false;
+
+        // Init Lucide icons
+        lucide.createIcons();
+
+        // Theme toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isDark = html.getAttribute('data-theme') === 'dark';
+            html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            document.getElementById('themeIconSun').style.display = isDark ? 'none' : '';
+            document.getElementById('themeIconMoon').style.display = isDark ? '' : 'none';
+            const label = document.querySelector('[data-i18n="themeToggle"]');
+            if (label) label.textContent = isDark
+                ? (currentLang === 'en' ? 'Dark Mode' : 'Mwala Wakuda')
+                : (currentLang === 'en' ? 'Light Mode' : 'Mwala Woyera');
+        }
+
+        // Language modal
+        function showLangModal() {
+            langModal.classList.remove('hidden');
+        }
+
+        function selectLang(lang) {
+            currentLang = lang;
+            langModal.classList.add('hidden');
+            applyTranslations();
+            // Update placeholders
+            const t = translations[lang];
+            phoneInput.placeholder = t.phonePlaceholder;
+            if (!geoLat) {
+                locationInput.placeholder = t.locationPlaceholder;
+            }
+            descriptionInput.placeholder = t.descPlaceholder;
+            // Re-init geo text states
+            if (geoDetecting) {
+                geoBtnText.textContent = t.geoBtnDetecting;
+            } else if (!geoFailed) {
+                geoBtnText.textContent = t.geoBtn;
+            }
+            validateForm();
+        }
+
+        function applyTranslations() {
+            const t = translations[currentLang];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.dataset.i18n;
+                if (t[key] !== undefined) {
+                    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                        el.placeholder = t[key];
+                    } else {
+                        el.innerHTML = t[key];
+                    }
+                }
+            });
+        }
+
+        async function reverseGeocode(latitude, longitude) {
+            const endpoint =
+                'https://nominatim.openstreetmap.org/reverse' +
+                '?format=jsonv2' +
+                '&lat=' + encodeURIComponent(latitude) +
+                '&lon=' + encodeURIComponent(longitude) +
+                '&zoom=18' +
+                '&addressdetails=1';
+
+            const response = await fetch(endpoint, {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Address lookup failed');
+            }
+
+            const data = await response.json();
+            return data.display_name || '';
+        }
+
+        // Geolocation
+        function initGeo() {
+            geoFailed = false;
+            geoDetecting = true;
+            locationHint.style.display = 'none';
+            coordPanel.style.display = 'none';
+            geoBtnText.textContent = translations[currentLang].geoBtnDetecting;
+
+            if (!navigator.geolocation) {
+                geoDenied('Geolocation not supported by your browser');
+                return;
+            }
+
+            let geoDone = false;
+            const geoTimeout = setTimeout(() => {
+                if (!geoDone) {
+                    geoDone = true;
+                    geoDenied('Location detection timed out');
+                }
+            }, 8000);
+
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => {
+                    if (geoDone) return;
+                    geoDone = true;
+                    clearTimeout(geoTimeout);
+                    geoDetecting = false;
+                    geoLat = pos.coords.latitude;
+                    geoLng = pos.coords.longitude;
+
+                    coordPanel.style.display = 'flex';
+                    coordValues.textContent = geoLat.toFixed(6) + ', ' + geoLng.toFixed(6);
+                    coordAccuracy.textContent = (pos.coords.accuracy ? Math.round(pos.coords.accuracy) + 'm ' : '') + translations[currentLang].coordAccuracy;
+                    geoBtnText.textContent = translations[currentLang].geoBtn;
+                    locationInput.placeholder = currentLang === 'en' ? 'e.g. Matero, Lusaka' : 'mwachitsanzo. Matero, Lusaka';
+
+                    try {
+                        const readableAddress = await reverseGeocode(geoLat, geoLng);
+                        if (readableAddress) {
+                            locationInput.value = readableAddress;
+                        } else if (!locationInput.value.trim()) {
+                            locationInput.placeholder = translations[currentLang].locationManualPlaceholder;
+                            locationHint.style.display = 'flex';
+                        }
+                    } catch (error) {
+                        if (!locationInput.value.trim()) {
+                            locationInput.placeholder = translations[currentLang].locationManualPlaceholder;
+                            locationHint.style.display = 'flex';
+                        }
+                    }
+
+                    validateForm();
+                },
+                (err) => {
+                    if (geoDone) return;
+                    geoDone = true;
+                    clearTimeout(geoTimeout);
+                    geoDenied(err.message);
+                },
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+            );
+        }
+
+        function geoDenied(errorMsg) {
+            geoDetecting = false;
+            geoFailed = true;
+            geoLat = null;
+            geoLng = null;
+            coordPanel.style.display = 'none';
+            locationHint.style.display = 'flex';
+            geoBtnText.textContent = translations[currentLang].geoBtn;
+            locationInput.placeholder = translations[currentLang].locationManualPlaceholder;
+            locationInput.value = '';
+            validateForm();
+            locationInput.focus();
+        }
+
+        function retryGeo() { initGeo(); }
+
+        // Validation
+        function validateForm() {
+            const valid =
+                phoneInput.value.trim().length >= 6 &&
+                descriptionInput.value.trim().length >= 3 &&
+                locationInput.value.trim().length >= 1 &&
+                termsCheckbox.checked;
+            submitBtn.disabled = !valid;
+            return valid;
+        }
+
+        // Clear individual field errors on input
+        phoneInput.addEventListener('input', () => {
+            document.getElementById('phoneError').classList.remove('show');
+            validateForm();
+        });
+        locationInput.addEventListener('input', () => {
+            document.getElementById('locationError').classList.remove('show');
+            validateForm();
+        });
+        descriptionInput.addEventListener('input', () => {
+            document.getElementById('descError').classList.remove('show');
+            validateForm();
+        });
+        termsCheckbox.addEventListener('change', validateForm);
+
+        // Char counter
+        function updateCounter() {
+            const len = descriptionInput.value.length;
+            charCounter.textContent = len + ' / 500';
+            if (len > 500) {
+                charCounter.style.color = 'var(--action-color)';
+            } else {
+                charCounter.style.color = 'var(--text-muted)';
+            }
+        }
+
+        // Toast
+        let toastTimeout = null;
+        function showToast(msg) {
+            toastTextEl.textContent = msg;
+            toastNotification.classList.add('active');
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toastNotification.classList.remove('active');
+            }, 4000);
+        }
+
+        // Accordion
+        function toggleAccordion() {
+            const content = document.getElementById('accordionContent');
+            const chevron = document.getElementById('accordionChevron');
+            content.classList.toggle('open');
+            chevron.style.transform = content.classList.contains('open') ? 'rotate(90deg)' : 'rotate(0deg)';
+            chevron.style.transition = 'transform 0.2s ease';
+        }
+
+        // Submit
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Inline validation
+            let hasError = false;
+            if (phoneInput.value.trim().length < 6) {
+                document.getElementById('phoneError').classList.add('show');
+                hasError = true;
+            }
+            if (locationInput.value.trim().length < 1) {
+                document.getElementById('locationError').classList.add('show');
+                hasError = true;
+            }
+            if (descriptionInput.value.trim().length < 3) {
+                document.getElementById('descError').classList.add('show');
+                hasError = true;
+            }
+            if (hasError) return;
+
+            if (!validateForm()) return;
+
+            submitBtn.disabled = true;
+            submitText.textContent = translations[currentLang].submitting;
+            submitIcon.style.display = 'none';
+            submitSpinner.style.display = 'block';
+
+            try {
+                const fd = new FormData();
+                fd.append('raw_text', descriptionInput.value.trim());
+                fd.append('phone_number', phoneInput.value.trim());
+                fd.append('location', locationInput.value.trim());
+                fd.append('channel', 'WEB');
+                if (geoLat !== null) fd.append('latitude', geoLat.toString());
+                if (geoLng !== null) fd.append('longitude', geoLng.toString());
+
+                const res = await fetch('/report', {
+                    method: 'POST',
+                    body: fd
+                });
+
+                const data = await res.json();
+
+if (!res.ok) {
+    throw new Error(
+        data.error ||
+        data.message ||
+        'Submission failed'
+    );
+}
+
+document.getElementById(
+    'refIdDisplay'
+).textContent =
+    data.ref_id ||
+    data.refId ||
+    'RESQ-PENDING';
+
+formContainer.classList.add('hidden');
+successPanel.classList.add('show');
+
+lucide.createIcons();
+
+
+            } catch (err) {
+                showToast(err.message || translations[currentLang].networkError);
+                submitBtn.disabled = false;
+                submitText.textContent = translations[currentLang].submitBtn;
+                submitIcon.style.display = '';
+                submitSpinner.style.display = 'none';
+            }
+        });
+
+        // Reset
+        function resetForm() {
+            successPanel.classList.remove('show');
+            formContainer.classList.remove('hidden');
+            phoneInput.value = '';
+            descriptionInput.value = '';
+            locationInput.value = '';
+            geoLat = null;
+            geoLng = null;
+            geoFailed = false;
+            termsCheckbox.checked = false;
+            submitBtn.disabled = true;
+            submitText.textContent = translations[currentLang].submitBtn;
+            submitIcon.style.display = '';
+            submitSpinner.style.display = 'none';
+            coordPanel.style.display = 'none';
+            locationHint.style.display = 'none';
+            charCounter.textContent = '0 / 500';
+            charCounter.style.color = 'var(--text-muted)';
+            document.getElementById('phoneError').classList.remove('show');
+            document.getElementById('locationError').classList.remove('show');
+            document.getElementById('descError').classList.remove('show');
+            initGeo();
+        }
+
+        // Boot
+        initGeo();
+    </script>
+</body>
+</html>

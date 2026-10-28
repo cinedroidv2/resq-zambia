@@ -1,0 +1,71 @@
+RUN & TEST CHEATSHEET
+1. Navigate to project folder
+cd C:\Users\hp\Desktop\aProject\ResQ
+
+2. Activate virtual environment
+.venv\Scripts\activate
+
+3. Start the Flask server
+python run.py
+
+Expected output:
+Running on http://127.0.0.1:5000
+
+4. Open dashboard in browser
+http://127.0.0.1:5000/dashboard
+
+5. Send test incident (PowerShell)
+Medical case
+Invoke-WebRequest -Uri http://127.0.0.1:5000/report `
+-Method POST `
+-ContentType "application/json" `
+-UseBasicParsing `
+-Body '{"raw_text":"i fell off the stairs", "channel":"WEB"}'
+
+Fire case
+Invoke-WebRequest -Uri http://127.0.0.1:5000/report `
+-Method POST `
+-ContentType "application/json" `
+-UseBasicParsing `
+-Body '{"raw_text":"house on fire in matero", "channel":"WEB"}'
+
+Crime case
+Invoke-WebRequest -Uri http://127.0.0.1:5000/report `
+-Method POST `
+-ContentType "application/json" `
+-UseBasicParsing `
+-Body '{"raw_text":"armed robbery happening now", "channel":"WEB"}'
+
+Low severity case
+Invoke-WebRequest -Uri http://127.0.0.1:5000/report `
+-Method POST `
+-ContentType "application/json" `
+-UseBasicParsing `
+-Body '{"raw_text":"someone has a small cut", "channel":"WEB"}'
+
+6. View all incidents (API check)
+http://127.0.0.1:5000/api/incidents
+
+7. Expected system flow
+Request sent to /report
+NLP classifies text
+Incident stored in database
+Dashboard fetches from /api/incidents
+UI renders table
+
+8. Common fixes
+Missing packages
+pip install flask flask-sqlalchemy flask-migrate scikit-learn flask- io python-dotenv
+Server not updating
+
+Stop server:
+
+CTRL + C
+
+Restart:
+
+python run.py
+
+9. Minimal daily startup command
+.venv\Scripts\activate
+python run.py
